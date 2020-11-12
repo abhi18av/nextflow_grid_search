@@ -4,13 +4,16 @@ params.train_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_train_10k.c
 params.test_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_test_5k.csv"
 
 process H2O_GRID_NAIVE_BAYES {
-    container "quay.io/abhi18av/nextflow_grid_search"
+//    container "quay.io/abhi18av/nextflow_grid_search"
+    memory '4 GB'
+    cpus 4
 
     input:
     tuple file(params.train_frame), file(params.test_frame)
 
     output:
-    stdout auc
+    stdout
+    path('Grid_NaiveBayes_*')
 
     script:
     """
@@ -60,11 +63,16 @@ nb_grid.train(x=x,
 
 best_nb_model = nb_grid.get_grid(sort_by='auc', decreasing=True)[0]
 
+print(nb_grid)
+
 # Now let's evaluate the model performance on a test set
 # so we get an honest estimate of top model performance
 best_nb_model_perf = best_nb_model.model_performance(test)
 
-print(best_nb_model_perf.auc())
+h2o.save_grid("./", nb_grid.grid_id)
+
+# Explicitly print out the  the model's AUC on test data
+print('AUC of Top-performer on Test data: ', best_nb_model_perf.auc())
     """
 }
 
@@ -73,6 +81,8 @@ print(best_nb_model_perf.auc())
 //================================================================================
 
 workflow test {
+    input_data_ch = Channel.of([params.train_frame, params.test_frame])
 
+    H2O_GRID_NAIVE_BAYES(input_data_ch)
 
 }
