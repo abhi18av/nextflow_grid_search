@@ -65,6 +65,6 @@ print('AUC on Test data: ', test_perf.auc())
 workflow test {
     input_data_ch = Channel.of([params.train_frame, params.test_frame])
 
-    H2O_NAIVE_BAYES(input_data)
+    H2O_NAIVE_BAYES(input_data_ch)
 
 }
