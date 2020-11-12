@@ -10,7 +10,8 @@ process H2O_NAIVE_BAYES {
     tuple file(params.train_frame), file(params.test_frame)
 
     output:
-    stdout auc
+    stdout
+    path('NaiveBayes_model_*')
 
     script:
     """
@@ -41,14 +42,19 @@ nb_model = H2ONaiveBayesEstimator(laplace=0,
                                  nfolds=5,
                                  seed=1234)
 
-nb_model.train(x=predictors,
-              y=response,
+# Train the model grid
+nb_model.train(x=x,
+              y=y,
               training_frame=train)
 
 # Eval performance:
 test_perf = nb_model.model_performance(test)
 
-print(test_perf.auc())
+# Save the model
+h2o.save_model(nb_model, "./", force=True)
+
+# Explicitly print out the  the model's AUC on test data
+print('AUC on Test data: ', test_perf.auc())
     """
 }
 
@@ -57,6 +63,8 @@ print(test_perf.auc())
 //================================================================================
 
 workflow test {
+    input_data_ch = Channel.of([params.train_frame, params.test_frame])
 
+    H2O_NAIVE_BAYES(input_data)
 
 }
