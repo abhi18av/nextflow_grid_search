@@ -6,3 +6,4 @@ channels:
   - h2oai
 dependencies:
   - h2o=3.30.0.4
+  - python3=3.6.9
