@@ -7,3 +7,4 @@ channels:
 dependencies:
   - h2o=3.30.0.4
   - python=3.6.9
+  - openjdk=11
