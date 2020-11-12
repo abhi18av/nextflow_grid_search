@@ -20,17 +20,9 @@ import h2o
 from h2o.estimators import H2ONaiveBayesEstimator
 h2o.init()
 
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("--train_frame", help='Path to the training data', required=True)
-parser.add_argument("--test_frame", help='Path to the testing data', required=True)
-args = parser.parse_args()
-
-
-# Import them via parameters
 # Import a sample binary outcome train/test set into H2O
-train = h2o.import_file(args.train_frame)
-test = h2o.import_file(args.test_frame)
+train = h2o.import_file("${params.train_frame}")
+test = h2o.import_file("${params.test_frame}")
 
 # Identify predictors and response
 x = train.columns
