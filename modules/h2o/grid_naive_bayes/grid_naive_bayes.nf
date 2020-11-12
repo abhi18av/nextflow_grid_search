@@ -4,7 +4,7 @@ params.train_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_train_10k.c
 params.test_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_test_5k.csv"
 
 process H2O_GRID_NAIVE_BAYES {
-//    container "quay.io/abhi18av/nextflow_grid_search"
+    container "quay.io/abhi18av/nextflow_grid_search"
     memory '4 GB'
     cpus 4
 
