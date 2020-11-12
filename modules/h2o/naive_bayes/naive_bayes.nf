@@ -5,6 +5,8 @@ params.test_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_test_5k.csv"
 
 process H2O_NAIVE_BAYES {
     container "quay.io/abhi18av/nextflow_grid_search"
+    memory '4 GB'
+    cpus 4
 
     input:
     tuple file(params.train_frame), file(params.test_frame)
@@ -65,6 +67,6 @@ print('AUC on Test data: ', test_perf.auc())
 workflow test {
     input_data_ch = Channel.of([params.train_frame, params.test_frame])
 
-    H2O_NAIVE_BAYES(input_data)
+    H2O_NAIVE_BAYES(input_data_ch)
 
 }
