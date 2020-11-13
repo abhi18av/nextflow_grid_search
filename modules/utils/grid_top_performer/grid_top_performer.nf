@@ -12,7 +12,7 @@ process UTILS_GRID_TOP_PERFORMER {
     val(grid_name)
 
     output:
-    path("Grid_")
+    path("Grid_*")
 
     script:
     """
@@ -21,7 +21,7 @@ import h2o
 
 h2o.init()
 
-grid = h2o.load_grid("${baseDir}/${grid_folder}/${grid_name}")
+grid = h2o.load_grid("${grid_folder}/${grid_name}")
 print(grid)
 
 
@@ -46,6 +46,6 @@ workflow test {
     grid_folder_location = "${baseDir}/${params.grid_folder}"
 
     UTILS_GRID_TOP_PERFORMER(grid_folder_location,
-            params.grid_name)
+                             params.grid_name)
 
 }
