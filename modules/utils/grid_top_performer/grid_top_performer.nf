@@ -2,7 +2,7 @@ nextflow.enable.dsl = 2
 
 
 process UTILS_GRID_TOP_PERFORMER {
-    container "quay.io/abhi18av/nextflow_grid_search"
+//    container "quay.io/abhi18av/nextflow_grid_search"
     memory '4 GB'
     cpus 4
 
@@ -20,7 +20,11 @@ import h2o
 
 h2o.init()
 
-grid = h2o.load_grid("${grid_folder}/${grid_name}")
+# Save the model grid ID
+with open("${grid_id_file}", "r") as grid_id_txt: 
+    grid_id= grid_id_txt.read() 
+
+grid = h2o.load_grid("${grid_folder}/" + grid_id)
 print(grid)
 
 
@@ -42,7 +46,8 @@ print('AUC of Top-performer on Test data: ', top_grid_performer.auc())
 
 workflow test {
 
-    input_ch = Channel.of([])
+    input_ch = Channel.of(["$baseDir/test_data/nb_grid_id.txt",
+                           "$baseDir/test_data/nb_grid"])
 
     UTILS_GRID_TOP_PERFORMER(input_ch)
 
