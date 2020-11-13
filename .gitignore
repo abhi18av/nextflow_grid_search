@@ -6,3 +6,6 @@ _resources
 results/
 work/
 _scratch
+
+*/**/*python_*_model_*
+*/**/Grid_*python*
