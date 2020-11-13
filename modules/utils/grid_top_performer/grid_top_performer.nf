@@ -8,8 +8,7 @@ process UTILS_GRID_TOP_PERFORMER {
 
 
     input:
-    path(grid_folder)
-    val(grid_name)
+    tuple path(grid_id_file), path(grid_folder)
 
     output:
     path("Grid_*")
@@ -43,9 +42,8 @@ print('AUC of Top-performer on Test data: ', top_grid_performer.auc())
 
 workflow test {
 
-    grid_folder_location = "${baseDir}/${params.grid_folder}"
+    input_ch = Channel.of([])
 
-    UTILS_GRID_TOP_PERFORMER(grid_folder_location,
-                             params.grid_name)
+    UTILS_GRID_TOP_PERFORMER(input_ch)
 
 }

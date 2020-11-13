@@ -9,7 +9,7 @@ process H2O_GRID_NAIVE_BAYES {
     tuple val(train_frame), val(test_frame)
 
     output:
-    path('nb_grid')
+    tuple path('nb_grid_id.txt'), path('nb_grid')
 
     script:
     """
@@ -65,10 +65,16 @@ print(nb_grid)
 # so we get an honest estimate of top model performance
 best_nb_model_perf = best_nb_model.model_performance(test)
 
-h2o.save_grid("./nb_grid", nb_grid.grid_id)
-
 # Explicitly print out the  the model's AUC on test data
 print('AUC of Top-performer on Test data: ', best_nb_model_perf.auc())
+
+# Save the model grid
+h2o.save_grid("./nb_grid", nb_grid.grid_id)
+
+# Save the model grid ID
+with open("nb_grid_id.txt", "w") as grid_id_file: 
+    grid_id_file.write(nb_grid.grid_id) 
+
     """
 }
 
