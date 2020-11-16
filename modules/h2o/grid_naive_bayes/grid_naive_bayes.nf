@@ -1,19 +1,15 @@
 nextflow.enable.dsl = 2
 
-params.train_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_train_10k.csv"
-params.test_frame = "https://s3.amazonaws.com/erin-data/higgs/higgs_test_5k.csv"
-
 process H2O_GRID_NAIVE_BAYES {
     container "quay.io/abhi18av/nextflow_grid_search"
     memory '4 GB'
     cpus 4
 
     input:
-    tuple file(params.train_frame), file(params.test_frame)
+    tuple val(train_frame), val(test_frame)
 
     output:
-    stdout
-    path('Grid_NaiveBayes_*')
+    tuple path('nb_grid_id.txt'), path('nb_grid')
 
     script:
     """
@@ -25,8 +21,8 @@ from h2o.grid.grid_search import H2OGridSearch
 h2o.init()
 
 # Import a sample binary outcome train/test set into H2O
-train = h2o.import_file("${params.train_frame}")
-test = h2o.import_file("${params.test_frame}")
+train = h2o.import_file("${train_frame}")
+test = h2o.import_file("${test_frame}")
 
 # Identify predictors and response
 x = train.columns
@@ -69,10 +65,16 @@ print(nb_grid)
 # so we get an honest estimate of top model performance
 best_nb_model_perf = best_nb_model.model_performance(test)
 
-h2o.save_grid("./", nb_grid.grid_id)
-
 # Explicitly print out the  the model's AUC on test data
 print('AUC of Top-performer on Test data: ', best_nb_model_perf.auc())
+
+# Save the model grid
+h2o.save_grid("./nb_grid", nb_grid.grid_id)
+
+# Save the model grid ID
+with open("nb_grid_id.txt", "w") as grid_id_file: 
+    grid_id_file.write(nb_grid.grid_id) 
+
     """
 }
 
@@ -81,6 +83,7 @@ print('AUC of Top-performer on Test data: ', best_nb_model_perf.auc())
 //================================================================================
 
 workflow test {
+
     input_data_ch = Channel.of([params.train_frame, params.test_frame])
 
     H2O_GRID_NAIVE_BAYES(input_data_ch)
