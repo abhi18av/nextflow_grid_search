@@ -1,0 +1,7 @@
+train_frame:
+  "https://s3.amazonaws.com/erin-data/higgs/higgs_train_10k.csv"
+
+test_frame:
+  "https://s3.amazonaws.com/erin-data/higgs/higgs_test_5k.csv"
+
+
