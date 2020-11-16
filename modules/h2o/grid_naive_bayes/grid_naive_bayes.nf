@@ -2,10 +2,14 @@ nextflow.enable.dsl = 2
 
 params.nfolds = 5
 params.seed = 1234
+params.independent_variable = 'response'
+
+
+// hyper-parameters
 params.laplace= [0, 1, 2]
 params.min_sdev= [0.3, 0.6, 0.9]
 params.min_prob= [0.3, 0.6, 0.9]
-params.independent_variable = 'response'
+
 
 process H2O_GRID_NAIVE_BAYES {
     container "quay.io/abhi18av/nextflow_grid_search"
