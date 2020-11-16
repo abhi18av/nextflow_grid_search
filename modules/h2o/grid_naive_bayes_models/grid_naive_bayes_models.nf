@@ -90,7 +90,7 @@ nb_base_model = H2ONaiveBayesEstimator(
 
 
 nb_grid = H2OGridSearch(model=nb_base_model,
-                        hyper_params=nb_hyperparams
+                        hyper_params=nb_hyperparams,
                         parallelism= ${params.parallelism})
 
 
