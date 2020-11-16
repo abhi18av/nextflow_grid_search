@@ -1,17 +1,33 @@
 nextflow.enable.dsl = 2
 
+// Model parameters
 params.nfolds = 5
-params.seed = 1234
 params.independent_variable = 'response'
 
 
-// hyper-parameters
-params.laplace= [0, 1, 2]
-params.min_sdev= [0.3, 0.6, 0.9]
-params.min_prob= [0.3, 0.6, 0.9]
+// Naive-Bayes hyper-parameters
+params.model_seed = 1234
+params.laplace = [0, 1, 2]
+params.min_sdev = [0.3, 0.6, 0.9]
+params.min_prob = [0.3, 0.6, 0.9]
+params.eps_prob = [0.3, 0.6, 0.9]
+params.eps_sdev = [0.3, 0.6, 0.9]
+params.compute_metrics = ['True', 'False']
+
+// Grid search criteria
+params.strategy = 'RandomDiscrete'
+params.max_models = 10
+params.max_runtime_secs = 600
+params.stopping_metric = 'AUC'
+params.stopping_tolerance = 0.00001
+params.stopping_rounds = 5
+params.grid_seed = 1234
+
+// Grid parallel training, number of models to be trained in parallel
+params.parallelism = 1
 
 
-process H2O_GRID_NAIVE_BAYES {
+process H2O_GRID_NAIVE_BAYES_MODELS {
     container "quay.io/abhi18av/nextflow_grid_search"
     memory '4 GB'
     cpus 4
@@ -47,20 +63,37 @@ test[y] = test[y].asfactor()
 # Number of CV folds (to generate level-one data for stacking)
 nfolds = ${params.nfolds}
 
+
+search_criteria = {
+'strategy' : ${params.strategy},
+'stopping_metric' : ${params.stopping_metric},
+'max_models' : ${params.max_models},
+'max_runtime_secs' : ${params.max_runtime_secs},
+'stopping_metric' : ${params.stopping_metric},
+'stopping_tolerance' : ${params.stopping_tolerance},
+'stopping_rounds' : ${params.stopping_rounds},
+'seed' : ${params.grid_seed},
+}
+
+
 nb_hyperparams = {
 'laplace': ${params.laplace},
 'min_sdev': ${params.min_sdev},
-'min_prob': ${params.min_prob} 
+'min_prob': ${params.min_prob},
+'eps_prob': ${params.eps_prob},
+'eps_sdev': ${params.eps_sdev},
+'compute_metrics': ${params.compute_metrics}
 }
 
 # Build and train the model:
 nb_base_model = H2ONaiveBayesEstimator(
                                         nfolds=nfolds,
-                                        seed=${params.seed})
+                                        seed=${params.model_seed})
 
 
 nb_grid = H2OGridSearch(model=nb_base_model,
-                        hyper_params=nb_hyperparams)
+                        hyper_params=nb_hyperparams
+                        parallelism= ${params.parallelism})
 
 
 nb_grid.train(x=x, 
@@ -97,6 +130,6 @@ workflow test {
 
     input_data_ch = Channel.of([params.train_frame, params.test_frame])
 
-    H2O_GRID_NAIVE_BAYES(input_data_ch)
+    H2O_GRID_NAIVE_BAYES_MODELS(input_data_ch)
 
 }
