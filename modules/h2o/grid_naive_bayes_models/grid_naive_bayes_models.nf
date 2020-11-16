@@ -29,8 +29,6 @@ params.parallelism = 1
 
 process H2O_GRID_NAIVE_BAYES_MODELS {
     container "quay.io/abhi18av/nextflow_grid_search"
-    memory '4 GB'
-    cpus 4
 
     input:
     tuple val(train_frame), val(test_frame)
