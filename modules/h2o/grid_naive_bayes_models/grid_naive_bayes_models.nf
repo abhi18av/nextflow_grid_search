@@ -63,11 +63,11 @@ nfolds = ${params.nfolds}
 
 
 search_criteria = {
-'strategy' : ${params.strategy},
-'stopping_metric' : ${params.stopping_metric},
+'strategy' : "${params.strategy}",
+'stopping_metric' : "${params.stopping_metric}",
 'max_models' : ${params.max_models},
 'max_runtime_secs' : ${params.max_runtime_secs},
-'stopping_metric' : ${params.stopping_metric},
+'stopping_metric' : "${params.stopping_metric}",
 'stopping_tolerance' : ${params.stopping_tolerance},
 'stopping_rounds' : ${params.stopping_rounds},
 'seed' : ${params.grid_seed},
