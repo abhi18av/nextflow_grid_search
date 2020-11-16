@@ -99,9 +99,11 @@ nb_grid.train(x=x,
              training_frame=train,
              validation_frame=test)
 
-best_nb_model = nb_grid.get_grid(sort_by='auc', decreasing=True)[0]
+sorted_nb_grid = nb_grid.get_grid(sort_by='auc', decreasing=True)
 
-print(nb_grid.show())
+best_nb_model = sorted_nb_grid[0]
+
+print(sorted_nb_grid)
 
 # Now let's evaluate the model performance on a test set
 # so we get an honest estimate of top model performance
