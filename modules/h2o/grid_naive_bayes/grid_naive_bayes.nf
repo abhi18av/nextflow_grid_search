@@ -1,5 +1,12 @@
 nextflow.enable.dsl = 2
 
+params.nfolds = 5
+params.seed = 1234
+params.laplace= [0, 1, 2]
+params.min_sdev= [0.3, 0.6, 0.9]
+params.min_prob= [0.3, 0.6, 0.9]
+params.independent_variable = 'response'
+
 process H2O_GRID_NAIVE_BAYES {
     container "quay.io/abhi18av/nextflow_grid_search"
     memory '4 GB'
@@ -26,7 +33,7 @@ test = h2o.import_file("${test_frame}")
 
 # Identify predictors and response
 x = train.columns
-y = "response"
+y = "${params.independent_variable}"
 x.remove(y)
 
 # For binary classification, response should be a factor
@@ -34,18 +41,18 @@ train[y] = train[y].asfactor()
 test[y] = test[y].asfactor()
 
 # Number of CV folds (to generate level-one data for stacking)
-nfolds = 5
+nfolds = ${params.nfolds}
 
 nb_hyperparams = {
-'laplace': [0, 1, 2],
-'min_sdev': [0.3, 0.6, 0.9],
-'min_prob': [0.3, 0.6, 0.9]
+'laplace': ${params.laplace},
+'min_sdev': ${params.min_sdev},
+'min_prob': ${params.min_prob} 
 }
 
 # Build and train the model:
 nb_base_model = H2ONaiveBayesEstimator(
-                                        nfolds=5,
-                                        seed=1234)
+                                        nfolds=nfolds,
+                                        seed=${params.seed})
 
 
 nb_grid = H2OGridSearch(model=nb_base_model,
