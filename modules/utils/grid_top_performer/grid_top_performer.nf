@@ -2,7 +2,7 @@ nextflow.enable.dsl = 2
 
 
 process UTILS_GRID_TOP_PERFORMER {
-//    container "quay.io/abhi18av/nextflow_grid_search"
+    container "quay.io/abhi18av/nextflow_grid_search"
     memory '4 GB'
     cpus 4
 
