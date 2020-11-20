@@ -101,26 +101,13 @@ nb_grid.train(x=x,
              training_frame=train,
              validation_frame=test)
 
-sorted_nb_grid = nb_grid.get_grid(sort_by='auc', decreasing=True)
 
-best_nb_model = sorted_nb_grid[0]
-
-print(sorted_nb_grid)
-
-# Now let's evaluate the model performance on a test set
-# so we get an honest estimate of top model performance
-best_nb_model_perf = best_nb_model.model_performance(test)
-
-# Explicitly print out the  the model's AUC on test data
-print('AUC of Top-performer on Test data: ', best_nb_model_perf.auc())
-
-# Save the model grid
+print("Saving the grid")
 h2o.save_grid("./nb_grid", nb_grid.grid_id)
 
-# Save the model grid ID
+print("Saving the grid ID")
 with open("nb_grid_id.txt", "w") as grid_id_file: 
     grid_id_file.write(nb_grid.grid_id) 
-
     """
 }
 

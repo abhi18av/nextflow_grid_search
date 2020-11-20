@@ -104,27 +104,13 @@ glm_grid.train(x=x,
              training_frame=train,
              validation_frame=test)
 
-
-sorted_glm_grid = glm_grid.get_grid(sort_by='auc', decreasing=True)
-
-best_glm_model = sorted_glm_grid[0]
-
-print(sorted_glm_grid)
-
-
-# Now let's evaluate the model performance on a test set
-# so we get an honest estimate of top model performance
-best_glm_model_perf = best_glm_model.model_performance(test)
-
-# Explicitly print out the  the model's AUC on test data
-print('AUC of Top-performer on Test data: ', best_glm_model_perf.auc())
-
-# Save the model grid
+print("Saving the grid")
 h2o.save_grid("./glm_grid", glm_grid.grid_id)
 
-# Save the model grid ID
+print("Saving the grid ID")
 with open("glm_grid_id.txt", "w") as grid_id_file: 
     grid_id_file.write(glm_grid.grid_id) 
+
 
     """
 }
