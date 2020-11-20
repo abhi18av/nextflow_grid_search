@@ -1,24 +1,37 @@
 nextflow.enable.dsl = 2
 
+// Model parameters
 params.nfolds = 5
-params.seed = 1234
 params.independent_variable = 'response'
+params.family = 'binomial'
+
+// Generalized Linear Model hyper-parameters
+params.model_seed = 1234
+params.alpha = 0.5
+//params.lambda =
+params.missing_values_handling = " 'mean_imputation', 'skip' "
+params.standardize = 'False'
+params.theta = [0, 0.3, 0.6, 0.9, 1]
+params.tweedie_link_power = [0, 0.3, 0.6, 0.9, 1, 3, 6, 9]
+params.tweedie_variance_power = [0, 0.3, 0.6, 0.9, 1, 3, 6, 9]
 
 
-// hyper-parameters
-params.alpha =
-params.lambda =
-params.missing_values_handling =
-params.seed = 1234
-params.standardize =
-params.theta =
-params.tweedie_link_power =
-params.tweedie_variance_power =
+// Grid search criteria
+params.strategy = 'RandomDiscrete'
+params.max_models = 10
+params.max_runtime_secs = 600
+params.stopping_metric = 'AUC'
+params.stopping_tolerance = 0.00001
+params.stopping_rounds = 5
+params.grid_seed = 1234
+
+// Grid parallel training, number of models to be trained in parallel
+params.parallelism = 1
 
 process H2O_GRID_GENERALIZED_LINEAR_MODELS {
     container "quay.io/abhi18av/nextflow_grid_search"
-    memory '16 GB'
-    cpus 8
+    memory '8 GB'
+    cpus 4
 
     input:
     tuple val(train_frame), val(test_frame)
@@ -51,20 +64,39 @@ test[y] = test[y].asfactor()
 # Number of CV folds (to generate level-one data for stacking)
 nfolds = ${params.nfolds}
 
+
+search_criteria = {
+'strategy' : "${params.strategy}",
+'stopping_metric' : "${params.stopping_metric}",
+'max_models' : ${params.max_models},
+'max_runtime_secs' : ${params.max_runtime_secs},
+'stopping_metric' : "${params.stopping_metric}",
+'stopping_tolerance' : ${params.stopping_tolerance},
+'stopping_rounds' : ${params.stopping_rounds},
+'seed' : ${params.grid_seed},
+}
+
 glm_hyperparams = {
-'laplace': ${params.laplace},
-'min_sdev': ${params.min_sdev},
-'min_prob': ${params.min_prob} 
+'alpha' : ${params.alpha},
+# lambda' : {params.lambda},
+'missing_values_handling' : [${params.missing_values_handling}],
+'theta' : ${params.theta},
+'tweedie_link_power' : ${params.tweedie_link_power},
+'tweedie_variance_power' : ${params.tweedie_variance_power}
 }
 
 # Build and train the model:
 glm_base_model = H2OGeneralizedLinearEstimator(
+                                        family= "${params.family}",
                                         nfolds=nfolds,
-                                        seed=${params.seed})
+                                        seed=${params.model_seed},
+                                        standardize= ${params.standardize}
+)
 
 
 glm_grid = H2OGridSearch(model=glm_base_model,
-                        hyper_params=glm_hyperparams)
+                        hyper_params=glm_hyperparams,
+                        parallelism= ${params.parallelism})
 
 
 glm_grid.train(x=x, 
